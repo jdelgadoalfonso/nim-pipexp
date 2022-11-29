@@ -70,10 +70,10 @@ let c = pipe 10:
 ```
 
 ## To-do
-[ ] Support anonymous procs
-[ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
-[ ] Allow configuring the placeholder symbol
-[x] Allow multiple instances of "`_`"
+- [ ] Support anonymous procs
+- [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
+- [ ] Allow configuring the placeholder symbol
+- [X] Allow multiple instances of "`_`"
 
 Maybe:
 - Other operators like [magrittr](https://github.com/tidyverse/magrittr)
