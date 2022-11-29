@@ -30,6 +30,7 @@ macro `|`*(arg, fn: untyped): untyped =
   of nnkIdent:
     # When proc is passed without parentheses: arg0 | fn
     result = newCall(fn, arg)
+
   of nnkCall, nnkCommand:
     # When proc is passed with parentheses: arg0 | fn(...)
     var u: seq[int] = placeholderPos(fn)
@@ -39,6 +40,13 @@ macro `|`*(arg, fn: untyped): untyped =
       result.add arg
     else:
       addArgsAndPlaceholders(u, arg, fn)
+
+  of nnkPar, nnkCurly:
+    if fn[0].kind == nnkLambda:
+      result = newCall(fn[0], arg)
+    else:
+      raise newException(Exception, "expected Lambda expression after '(' or '{'")
+
   else:
     result = fn
     result.insert(1, arg)
