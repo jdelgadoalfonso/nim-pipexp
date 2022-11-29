@@ -48,6 +48,12 @@ let a = 10 | plus20
 10 | plus_a0(_,20) | echo
 10 | plus_a1(20,_) | echo
 10 | plus_a1(30,_) | plus_a1(40,_) | echo
+
+# You can pass multiple placeholders:
+proc plus_as(a1, a2, a3: int): int = a1 + a2 + a3
+10 | plus_as(_,_,50) | echo
+10 | plus_as(90,_,_) | echo
+10 | plus_as(_,_,_) | echo
 ```
 
 You can also make use of a pipeline macro called `pipe`:
@@ -64,10 +70,10 @@ let c = pipe 10:
 ```
 
 ## To-do
-- Support anonymous procs
-- Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
-- Allow configuring the placeholder symbol
-- Allow multiple instances of "`_`"
+[ ] Support anonymous procs
+[ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
+[ ] Allow configuring the placeholder symbol
+[x] Allow multiple instances of "`_`"
 
 Maybe:
 - Other operators like [magrittr](https://github.com/tidyverse/magrittr)
