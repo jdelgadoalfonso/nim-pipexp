@@ -1,10 +1,11 @@
 import
   std/macros
 
+const PLACEHOLDER = "_"
 
-proc underscorePos(n: NimNode): int =
+proc placeholderPos(n: NimNode): int =
   for i in 1 ..< n.len:
-    if n[i].eqIdent("_"): return i
+    if n[i].eqIdent(PLACEHOLDER): return i
   return 0
 
 
@@ -13,7 +14,7 @@ macro `|`*(arg, fn: untyped): untyped =
   of nnkIdent:
     result = newCall(fn, arg)
   of nnkCall, nnkCommand:
-    let u = underscorePos(fn)
+    let u = placeholderPos(fn)
     result = newNimNode(nnkCall)
       .add(fn[0])
     for i in 1..u-1: result.add fn[i]
@@ -24,13 +25,13 @@ macro `|`*(arg, fn: untyped): untyped =
     result.insert(1, arg)
 
 
-proc underscoredCall(fn, arg0: NimNode): NimNode =
+proc placeholderCall(fn, arg0: NimNode): NimNode =
   case fn.kind:
   of nnkIdent:
     result = newCall(fn, arg0)
   of nnkCall, nnkCommand:
     let
-      u = underscorePos(fn)
+      u = placeholderPos(fn)
       arg = arg0
     result = newNimNode(nnkCall)
       .add(fn[0])
@@ -40,7 +41,7 @@ proc underscoredCall(fn, arg0: NimNode): NimNode =
   of nnkStmtList, nnkStmtListExpr:
     result = arg0
     for stmt in fn.children:
-      result = underscoredCall(stmt, result)
+      result = placeholderCall(stmt, result)
   else:
     result = newCall(fn, arg0)
 
@@ -48,4 +49,4 @@ proc underscoredCall(fn, arg0: NimNode): NimNode =
 macro pipe*(arg: untyped, fns: varargs[untyped]): untyped =
   result = arg
   for fn in fns:
-    result = underscoredCall(fn, result)
+    result = placeholderCall(fn, result)
