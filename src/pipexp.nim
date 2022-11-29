@@ -12,6 +12,19 @@ proc placeholderPos(n: NimNode): seq[int] =
       result.add(i)
 
 
+template addArgsAndPlaceholders(phIndices: seq[int], arg, fn: untyped): untyped =
+  if phIndices.len == 0:
+    result.add arg
+    for i in 1..fn.len-1:
+      result.add fn[i]
+  else:
+    for i in 1..fn.len-1:
+      if i in phIndices:
+        result.add arg
+      else:
+        result.add fn[i]
+
+
 macro `|`*(arg, fn: untyped): untyped =
   case fn.kind:
   of nnkIdent:
@@ -25,43 +38,26 @@ macro `|`*(arg, fn: untyped): untyped =
     if fn.len == 1:
       result.add arg
     else:
-      if u.len == 0:
-        result.add arg
-        for i in 1..fn.len-1:
-          result.add fn[i]
-      else:
-        for i in 1..fn.len-1:
-          if i in u:
-            result.add arg
-          else:
-            result.add fn[i]
+      addArgsAndPlaceholders(u, arg, fn)
   else:
     result = fn
     result.insert(1, arg)
-
 
 proc placeholderCall(fn, arg0: NimNode): NimNode =
   case fn.kind:
   of nnkIdent:
     # When proc is passed without parentheses: arg0 | fn
     result = newCall(fn, arg0)
+
   of nnkCall, nnkCommand:
     # When proc is passed with parentheses: arg0 | fn(...)
     let
-      u = placeholderPos(fn)
-      arg = arg0
+      u: seq[int] = placeholderPos(fn)
+      arg: NimNode = arg0
     result = newNimNode(nnkCall)
       .add(fn[0])
-    if u.len == 0:
-      result.add arg
-      for i in 1..fn.len-1:
-        result.add fn[i]
-    else:
-      for i in 1..fn.len-1:
-        if i in u:
-          result.add arg
-        else:
-          result.add fn[i]
+    addArgsAndPlaceholders(u, arg, fn)
+
   of nnkStmtList, nnkStmtListExpr:
     # When a block of procs is passed as a pipeline:
     # pipe arg0:
