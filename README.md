@@ -55,9 +55,10 @@ proc plus_as(a1, a2, a3: int): int = a1 + a2 + a3
 10 | plus_as(90,_,_) | echo
 10 | plus_as(_,_,_) | echo
 
-# You can pass lambdas if the are enclosed by curly brackets or parentheses:
-10 | { proc(x: int): int =
-	x + 20
+# You can pass lambdas if they are enclosed by curly brackets or parentheses:
+10 | {
+proc(x: int): int =
+  x + 20
 } | echo
 ```
 
@@ -83,6 +84,9 @@ let c = pipe 10:
 	- [X] Nim native lambdas
 	- [ ] `=>` anonymous procs from `std/sugar`
 - [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
+	- [ ] Indexing placeholder
+	- [ ] Unpacking placeholder
+	- [ ] Calling placeholder
 - [ ] Allow configuring the placeholder symbol
 - [X] Allow multiple instances of "`_`"
 
