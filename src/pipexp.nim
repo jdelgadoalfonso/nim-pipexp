@@ -4,7 +4,7 @@ import
 const PLACEHOLDER = "_"
 
 proc placeholderPos(n: NimNode): seq[int] =
-  ## Get the index positions the placeholder arguments
+  ## Get the index positions of the placeholder arguments
   ## in the procedure call of `n`
   ## Empty seq if no placeholder was found
   for i in 1 ..< n.len:
@@ -26,12 +26,16 @@ template addArgsAndPlaceholders(phIndices: seq[int], arg, fn: untyped): untyped 
 
 
 macro `|`*(arg, fn: untyped): untyped =
+  ## Pipe operator. Calls the procedure operand on the right
+  ## with the operand on the left, broadcasting it as
+  ## the first argument or on the placeholder "_" arguments
+
   case fn.kind:
   of nnkIdent:
     # When proc is passed without parentheses: arg0 | fn
     result = newCall(fn, arg)
   of nnkCall, nnkCommand:
-    # When proc is passed with parentheses: arg0 | fn(...)
+    # When proc is passed with arguments: arg0 | fn(...)
     var u: seq[int] = placeholderPos(fn)
     result = newNimNode(nnkCall)
       .add(fn[0])
@@ -50,7 +54,7 @@ proc placeholderCall(fn, arg0: NimNode): NimNode =
     result = newCall(fn, arg0)
 
   of nnkCall, nnkCommand:
-    # When proc is passed with parentheses: arg0 | fn(...)
+    # When proc is passed with arguments: arg0 | fn(...)
     let
       u: seq[int] = placeholderPos(fn)
       arg: NimNode = arg0
@@ -71,6 +75,11 @@ proc placeholderCall(fn, arg0: NimNode): NimNode =
 
 
 macro pipe*(arg: untyped, fns: varargs[untyped]): untyped =
+  ## Pipeline macro.
+  ## Passes the first argument through a pipeline of
+  ## procedure calls from left to right
+  ## It may also accept the calls as an indented statement list
+
   result = arg
   for fn in fns:
     result = placeholderCall(fn, result)
