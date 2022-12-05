@@ -28,10 +28,6 @@ suite "|":
     }
 
     test "pipelines":
-      # FIXME:
-      # This test passes somehow, but it cannot be used in code:
-      #   redefinition of ':anonymous'; previous declaration here: ...
-      # Lambdas apparently are being redeclared with name :anonymous
       assert plus20(arg0 + 40) == arg0 | {
         proc (x: int): int = x + 40
       } | plus20
@@ -56,11 +52,22 @@ suite "pipe":
     assert plus20(arg0) == ret2
     assert plus20(arg0) == ret3
 
-
   test "multiple argument procs":
     assert plus20Multi(arg0,0,0) == pipe(arg0, plus20Multi(0,0))
     assert plus20Multi(arg0,0,0) == pipe(arg0, plus20Multi(_,0,0))
     assert plus20Multi(arg0,arg0,0) == pipe(arg0, plus20Multi(_,_,0))
     assert plus20Multi(arg0,arg0,arg0) == pipe(arg0, plus20Multi(_,_,_))
 
+  test "lambdas":
+    assert plus20(arg0) == pipe(arg0,
+      proc (x: int): int = x + 20
+    )
 
+    assert plus20(arg0) == pipe(arg0, {
+      proc (x: int): int = x + 20
+    })
+
+    let ret1 = pipe arg0:
+      { proc (x: int): int = x + 20 }
+
+    assert plus20(arg0) == ret1

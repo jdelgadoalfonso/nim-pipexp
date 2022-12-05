@@ -66,6 +66,12 @@ proc placeholderCall(fn, arg0: NimNode): NimNode =
       .add(fn[0])
     addArgsAndPlaceholders(u, arg, fn)
 
+  of nnkPar, nnkCurly:
+    if fn[0].kind == nnkLambda:
+      result = newCall(fn[0], arg0)
+    else:
+      raise newException(Exception, "expected Lambda expression after '(' or '{'")
+
   of nnkStmtList, nnkStmtListExpr:
     # When a block of procs is passed as a pipeline:
     # pipe arg0:
@@ -74,6 +80,7 @@ proc placeholderCall(fn, arg0: NimNode): NimNode =
     result = arg0
     for stmt in fn.children:
       result = placeholderCall(stmt, result)
+
   else:
     result = newCall(fn, arg0)
 
