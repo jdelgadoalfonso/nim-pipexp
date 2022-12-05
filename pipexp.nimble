@@ -1,7 +1,7 @@
 # Package
 
-version       = "0.2.0"
-author        = "tplasdio"
+version       = "0.3.0"
+author        = "emanresu3"
 description   = "Expression-based pipe operators with placeholder argument"
 license       = "MIT"
 srcDir        = "src"
