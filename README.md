@@ -54,6 +54,11 @@ proc plus_as(a1, a2, a3: int): int = a1 + a2 + a3
 10 | plus_as(_,_,50) | echo
 10 | plus_as(90,_,_) | echo
 10 | plus_as(_,_,_) | echo
+
+# You can pass lambdas if the are enclosed by curly brackets or parentheses:
+10 | { proc(x: int): int =
+	x + 20
+} | echo
 ```
 
 You can also make use of a pipeline macro called `pipe`:
@@ -67,10 +72,16 @@ let c = pipe 10:
   plus20
   plus_a0(40)
   plus_a1(30,_)
+  {
+    proc (_: int): int =
+      _ + 50
+  }
 ```
 
 ## To-do
 - [ ] Support anonymous procs
+	- [X] Nim native lambdas
+	- [ ] `=>` anonymous procs from `std/sugar`
 - [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
 - [ ] Allow configuring the placeholder symbol
 - [X] Allow multiple instances of "`_`"
