@@ -6,8 +6,17 @@ proc plus20(arg0: int): int = arg0 + 20
 proc plus30(arg0: int): int = arg0 + 30
 proc plus20Multi(arg1, arg2, arg3: int): int = arg1 + arg2 + arg3 + 20
 
+import math
+proc power10Sum[T](A: openArray[T]): T =
+  let len = A.len
+  for i in 0 ..< len:
+    result +=  A[i] * 10^(len-i-1)
+
+
 suite "|":
-  let arg0 = 10
+  let
+    arg0 = 10
+    A0 = @[1,2,3,4]
 
   test "builtin procs":
     check arg0 + 20 == arg0 | +20
@@ -42,6 +51,19 @@ suite "|":
        plus20Multi(1,plus20Multi(arg0,0,0),1) == arg0 | plus20Multi(0,0) | plus20Multi(1,_,1)
        plus20Multi(1,1,plus20Multi(arg0,0,0)) == arg0 | plus20Multi(0,0) | plus20Multi(1,1,_)
 
+  test "placeholder special":
+
+    test "placeholder indexing":
+      check:
+        plus20(A0[0]) == A0 | plus20(_[0])
+        plus20(A0[^1]) == A0 | plus20(_[^1])
+
+    test "placeholder slicing":
+      check:
+        power10Sum(A0[0..2]) == A0 | power10Sum(_[0..2])
+        power10Sum(A0[0..^1]) == A0 | power10Sum(_[0..^1])
+
+
   test "lambdas":
     check plus20(arg0) == arg0 | {
       proc (x: int): int = x + 20
@@ -54,7 +76,9 @@ suite "|":
 
 
 suite "pipe":
-  let arg0 = 10
+  let
+    arg0 = 10
+    A0 = @[1,2,3,4]
 
   test "1 argument procs":
     check:
@@ -95,3 +119,20 @@ suite "pipe":
       { proc (x: int): int = x + 20 }
 
     check plus20(arg0) == ret1
+
+  test "placeholder special":
+
+    test "placeholder indexing":
+      check:
+        plus20(A0[0]) == pipe(A0, plus20(_[0]))
+        plus20(A0[^1]) == pipe(A0, plus20(_[^1]))
+
+    test "placeholder slicing":
+
+      let ret1 = pipe A0:
+        power10Sum(_[0..2])
+
+      check:
+        power10Sum(A0[0..2]) == pipe(A0, power10Sum(_[0..2]))
+        power10Sum(A0[0..^1]) == pipe(A0, power10Sum(_[0..^1]))
+        power10Sum(A0[0..2]) == ret1

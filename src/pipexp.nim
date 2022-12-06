@@ -14,7 +14,7 @@ proc placeholderPos(n: NimNode): seq[int] =
       result.add(i)
 
 
-template addArgsAndPlaceholders(phIndices: seq[int], arg, fn: untyped): untyped =
+template addArgsAndPlaceholders(phIndices: seq[int], arg, fn: NimNode): untyped =
   if phIndices.len == 0:
     result.add arg
     for i in 1..fn.len-1:
