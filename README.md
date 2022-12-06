@@ -93,8 +93,8 @@ let c = pipe 10:
 	- [ ] `=>` anonymous procs from `std/sugar`
 - [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
 	- [X] Indexing placeholder
-	- [X] Unpacking placeholder
-	- [ ] Calling placeholder
+	- [ ] Unpacking placeholder
+	- [X] Calling placeholder
 - [ ] Allow configuring the placeholder symbol
 - [X] Allow multiple instances of "`_`"
 
