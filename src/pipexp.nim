@@ -10,7 +10,8 @@ proc placeholderPos(n: NimNode): seq[int] =
   # I first get the positions to know if no placeholder was passed
   for i in 1 ..< n.len:
     if n[i].eqIdent(PLACEHOLDER) or
-       (n[i].kind == nnkBracketExpr and n[i][0].eqIdent(PLACEHOLDER)):
+      ((n[i].kind == nnkBracketExpr or n[i].kind == nnkCall) and
+       n[i][0].eqIdent(PLACEHOLDER)):
       result.add(i)
 
 
@@ -25,8 +26,13 @@ template addArgsAndPlaceholders(phIndices: seq[int], arg, fn: NimNode): untyped 
         if fn[i].eqIdent(PLACEHOLDER):
           # Single _ argument
           result.add arg
-        elif fn[i].kind == nnkBracketExpr and fn[i][0].eqIdent(PLACEHOLDER):
+        elif (fn[i].kind == nnkBracketExpr) and fn[i][0].eqIdent(PLACEHOLDER):
           # _ with indexing/slicing
+          fn[i][0] = arg
+          result.add fn[i]
+        elif (fn[i].kind == nnkCall) and fn[i][0].eqIdent(PLACEHOLDER):
+          # _ with calling parentheses
+          # FIXME: doesn't parse correctly on pipelines when not on last pipe
           fn[i][0] = arg
           result.add fn[i]
       else:
