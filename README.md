@@ -60,9 +60,17 @@ proc plus_as(a1, a2, a3: int): int = a1 + a2 + a3
 proc(x: int): int =
   x + 20
 } | echo
+
+# You can index the placeholder
+[10,20] | plus20(_[1]) | echo
+[10,20] | plus20(_[0]) | echo
+
+# You can call the placeholder
+plus20 | plus20(_(10)) | echo
 ```
 
-You can also make use of a pipeline macro called `pipe`:
+You can also make use of a pipeline macro called `pipe` to
+separate the callables in different lines:
 ```nim
 let b = pipe(10, plus20)
 pipe(10, plus20, echo)
@@ -80,13 +88,13 @@ let c = pipe 10:
 ```
 
 ## To-do
-- [ ] Support anonymous procs
+- [o] Support anonymous procs
 	- [X] Nim native lambdas
 	- [ ] `=>` anonymous procs from `std/sugar`
-- [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
-	- [ ] Indexing placeholder
+- [o] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
+	- [X] Indexing placeholder
 	- [ ] Unpacking placeholder
-	- [ ] Calling placeholder
+	- [X] Calling placeholder
 - [ ] Allow configuring the placeholder symbol
 - [X] Allow multiple instances of "`_`"
 
