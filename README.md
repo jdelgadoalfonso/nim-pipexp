@@ -88,13 +88,13 @@ let c = pipe 10:
 ```
 
 ## To-do
-- [o] Support anonymous procs
+- [ ] Support anonymous procs
 	- [X] Nim native lambdas
 	- [ ] `=>` anonymous procs from `std/sugar`
-- [o] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
+- [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
 	- [X] Indexing placeholder
-	- [ ] Unpacking placeholder
-	- [X] Calling placeholder
+	- [X] Unpacking placeholder
+	- [ ] Calling placeholder
 - [ ] Allow configuring the placeholder symbol
 - [X] Allow multiple instances of "`_`"
 

@@ -21,7 +21,30 @@ suite "|":
     A0 = @[1,2,3,4]
 
   test "builtin procs":
-    check arg0 + 20 == arg0 | +20
+    check:
+      arg0 + 20 == arg0 | +20
+      arg0 - 15 == arg0 | - 15
+      arg0 * 2 == arg0 | *2
+      arg0 / 2 == arg0 | /2
+      succ(arg0) == arg0 | succ
+      pred(arg0) == arg0 | pred
+
+      true and true == true | and(true)
+      true or false == true | or(false)
+      true xor false == true | xor(false)
+      # `not` cannot be natively used
+      #not true == true | not()
+
+      (arg0 == arg0) == (arg0 | == arg0)
+      (arg0 != arg0) == (arg0 | != arg0)
+      (arg0 <= arg0+1) == (arg0 | <=(arg0+1))
+      (arg0 >= arg0+1) == (arg0 | >=(arg0+1))
+      (arg0 < arg0+1) == (arg0 | <(arg0+1))
+      (arg0 > arg0+1) == (arg0 | >(arg0+1))
+      arg0 in [arg0,0] == arg0 | in [arg0,0]
+
+      A0[2] == A0 | `[]`(2)
+      A0[1..3] == A0 | `[]`(1..3)
 
   test "1 argument procs":
     check:
