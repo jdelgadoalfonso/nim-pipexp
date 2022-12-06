@@ -4,7 +4,9 @@ import pipexp
 
 proc plus20(arg0: int): int = arg0 + 20
 proc plus30(arg0: int): int = arg0 + 30
+proc mul3(arg0: int): int = arg0 * 3
 proc plus20Multi(arg1, arg2, arg3: int): int = arg1 + arg2 + arg3 + 20
+proc identityproc(x: proc): proc = x
 
 import math
 proc power10Sum[T](A: openArray[T]): T =
@@ -62,6 +64,12 @@ suite "|":
       check:
         power10Sum(A0[0..2]) == A0 | power10Sum(_[0..2])
         power10Sum(A0[0..^1]) == A0 | power10Sum(_[0..^1])
+
+    test "placeholder calling":
+      check:
+        mul3(plus20(arg0)) == plus20 | mul3(_(arg0))
+        mul3(plus20(arg0)) == plus20 | identityproc | mul3(_(arg0))
+        plus30(plus20(mul3(arg0))) == mul3 | plus20(_(arg0)) | plus30
 
 
   test "lambdas":
@@ -136,3 +144,14 @@ suite "pipe":
         power10Sum(A0[0..2]) == pipe(A0, power10Sum(_[0..2]))
         power10Sum(A0[0..^1]) == pipe(A0, power10Sum(_[0..^1]))
         power10Sum(A0[0..2]) == ret1
+
+    test "placeholder calling":
+      let ret1 = pipe mul3:
+        plus20(_(arg0))
+        plus30
+
+      check:
+        mul3(plus20(arg0)) == pipe(plus20, mul3(_(arg0)))
+        mul3(plus20(arg0)) == pipe(plus20, identityproc, mul3(_(arg0)))
+        plus30(plus20(mul3(arg0))) == pipe(mul3, plus20(_(arg0)), plus30)
+        plus30(plus20(mul3(arg0))) == ret1
