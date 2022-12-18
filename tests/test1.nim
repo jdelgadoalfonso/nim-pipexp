@@ -52,7 +52,7 @@ suite "|":
       plus20(arg0) == arg0 | plus20()
       plus20(arg0) == arg0 | plus20(_)
 
-    test "pipelines":
+    test "pipelines 1 argument":
       check:
         plus30(plus20(arg0)) == arg0 | plus20 | plus30
         plus20(plus30(arg0)) == arg0 | plus30 | plus20
@@ -68,7 +68,7 @@ suite "|":
       plus20Multi(arg0,arg0,0) == arg0 | plus20Multi(_,_,0)
       plus20Multi(arg0,arg0,arg0) == arg0 | plus20Multi(_,_,_)
 
-    test "pipelines":
+    test "pipelines multiple argument":
       check:
        plus20Multi(plus20Multi(arg0,0,0),1,1) == arg0 | plus20Multi(0,0) | plus20Multi(1,1)
        plus20Multi(plus20Multi(arg0,0,0),1,1) == arg0 | plus20Multi(_,0,0) | plus20Multi(_,1,1)
@@ -96,14 +96,35 @@ suite "|":
 
 
   test "lambdas":
-    check plus20(arg0) == arg0 | {
+    check plus20(arg0) == arg0 | (
       proc (x: int): int = x + 20
-    }
+    )
 
-    test "pipelines":
-      check plus20(arg0 + 40) == arg0 | {
+    # pipeline with 1 lambda
+    test "pipeline lambdas":
+      check plus20(arg0 + 40) == arg0 | (
         proc (x: int): int = x + 40
-      } | plus20
+      ) | plus20
+
+      # pipeline with multiple lambdas, not next to each other
+      let ret2 = arg0 | (
+        proc (x: int): int = x + 30
+      ) | plus20 | (
+        proc (x: int): int = x + 30
+      )
+
+      check (arg0 + 80) == ret2
+
+      # pipeline with multiple lambdas, next to each other
+      # FIXME: redefinition of ':anonymous'; previous declaration here:
+      let ret3 = arg0 | (
+        proc (x: int): int = x + 30
+      ) | (
+        proc (x: int): int = x + 30
+      )
+
+      check (arg0 + 60) == ret2
+
 
 
 suite "pipe":
@@ -142,14 +163,32 @@ suite "pipe":
         proc (x: int): int = x + 20
       )
 
-      plus20(arg0) == pipe(arg0, {
+      plus20(arg0) == pipe(arg0, (
         proc (x: int): int = x + 20
-      })
+      ))
 
+    # pipeline with 1 lambda
     let ret1 = pipe arg0:
-      { proc (x: int): int = x + 20 }
+      ( proc (x: int): int = x + 20 )
 
     check plus20(arg0) == ret1
+
+    # pipeline with multiple lambdas, not correlatives
+    let ret2 = pipe arg0:
+      ( proc (x: int): int = x + 30 )
+      plus20
+      ( proc (x: int): int = x + 30 )
+
+    check (arg0 + 80) == ret2
+
+    # pipeline with multiple lambdas, correlatives
+    let ret3 = pipe arg0:
+      ( proc (x: int): int = x + 30 )
+      ( proc (x: int): int = x + 30 )
+      plus20
+
+    check (arg0 + 80) == ret3
+
 
   test "placeholder special":
 
