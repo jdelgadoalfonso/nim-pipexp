@@ -1,8 +1,8 @@
-# Nim-pipexp
+# Nim-pipexp 
 
 Expression-based pipe operators with placeholder argument for Nim.
 
-## Nim already has UCS, dup and with
+## Nim already has UCS
 
 ### UCS
 Nim already has a nice syntax sugar called
@@ -23,6 +23,7 @@ let a = 10 . plus20
 10 . plus(30) . plus(40) . echo
 ```
 
+Sometimes this is all you need.
 However you can't use this syntax if you want
 to pipe into procs on arguments other than the
 first one.
@@ -87,6 +88,46 @@ let c = pipe 10:
   }
 ```
 
+## Nim also has [`dup`](https://nim-lang.org/docs/sugar.html#dup.m%2CT%2Cvarargs%5Buntyped%5D) and [`with`](https://nim-lang.org/docs/with.html#with.m%2Ctyped%2Cvarargs%5Buntyped%5D)
+
+If your functions are in-place instead (they modify a var argument)
+you can use the
+[`dup`](https://nim-lang.org/docs/sugar.html#dup.m%2CT%2Cvarargs%5Buntyped%5D)
+macro from `std/sugar` to work on a mutable copy of the argument,
+chain functions modifying it, and return it at the end:
+
+```nim
+import std/sugar
+proc plus20InPlace(arg0: var int): void = arg0 += 20
+proc plusInPlace(arg0: var int, x: int): void = arg0 += x
+
+let arg: int = 10
+let a = dup(arg, plus20InPlace)
+let b = dup arg:
+  plus20InPlace
+  plus20InPlace()
+  plusInPlace(_,30)
+echo $arg & " " & $a & " " & $b
+```
+
+or the
+[`with`](https://nim-lang.org/docs/with.html#with.m%2Ctyped%2Cvarargs%5Buntyped%5D)
+macro from `std/with` to just chain those in-place functions
+on the argument:
+
+```nim
+import std/with
+proc plus20InPlace(arg0: var int): void = arg0 += 20
+proc plusInPlace(arg0: var int, x: int): void = arg0 += x
+
+var arg: int = 10
+with arg:
+  plus20InPlace
+  plus20InPlace()
+  plusInPlace(_,30)
+echo arg
+```
+
 ## To-do
 - [ ] Support anonymous procs
 	- [X] Nim native lambdas
@@ -96,12 +137,13 @@ let c = pipe 10:
 	- [ ] Unpacking placeholder
 	- [X] Calling placeholder
 - [ ] Allow configuring the placeholder symbol
-- [X] Allow multiple instances of "`_`"
+- [X] Allow multiple instances of the placeholder
 
 Maybe:
 - Other operators like [magrittr](https://github.com/tidyverse/magrittr)
 
 ## Similar
+- [Iterr](https://github.com/hamidb80/iterrr)
 - [Pipe](https://github.com/CosmicToast/pipe)
 - [Pipelines](https://github.com/calebwin/pipelines)
 
