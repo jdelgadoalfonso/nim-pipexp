@@ -315,3 +315,50 @@ suite "Recursive Placeholder":
 
     # Equivale a: joinThree("x".toUpper, "x", "x".toUpper)
     check ("x" |> joinThree(_.toUpperAscii, _, _.toUpperAscii)) == "XxX"
+
+
+suite "Tap Operator |!":
+  test "Basic tap with echo (side effect)":
+    var sideEffectValue = 0
+    proc saveValue(x: int) = sideEffectValue = x
+
+    let result = 10 |> plus20 |! saveValue |> plus30
+
+    # El resultado final debe ser 10 + 20 + 30 = 60
+    check result == 60
+    # El efecto secundario debe haber capturado el 30 (10 + 20)
+    check sideEffectValue == 30
+
+  test "Tap with placeholders":
+    var logMsg = ""
+    proc logger(msg: string) = logMsg = msg
+
+    let val = "naranja" |! logger("Log: " & _) |> toUpperAscii()
+
+    check val == "NARANJA"
+    check logMsg == "Log: naranja"
+
+  test "Tap doesn't execute argument twice":
+    var counter = 0
+    proc getVal(): int =
+      counter += 1
+      return 10
+
+    # Si evaluáramos 'arg' dos veces, counter sería 2
+    let res = getVal() |! plus20 |> plus30
+
+    check res == 40
+    check counter == 1
+
+  test "Multi-line pipe with Tap":
+    var loggerCalledWith = 0
+    proc logger(x: int) = loggerCalledWith = x
+
+    let val = 10 |>
+      plus20 |!
+      logger |>
+      plus30
+
+    check val == 60
+    check loggerCalledWith == 30
+

@@ -87,3 +87,26 @@ macro pipe*(arg: untyped, fns: varargs[untyped]): untyped =
   result = arg
   for fn in fns:
     result = processPipe(result, fn)
+
+macro `|!`*(arg, fn: untyped): untyped =
+  ## Operador Tap (Inspección) ultra-robusto.
+  ## Ejecuta `fn` sobre `arg` por sus efectos secundarios,
+  ## devolviendo siempre el `arg` original.
+
+  let tmp = genSym(nskLet, "tapValue")
+  let call = processPipe(tmp, fn)
+
+  # Usamos un bloque que define un procedimiento interno para el efecto secundario.
+  # Esto aísla la llamada 'void' de la inferencia de tipos del resto de la tubería.
+  result = quote do:
+    block:
+      let `tmp` = `arg`
+      # Definimos y ejecutamos un proc local para encapsular el efecto secundario
+      proc executeTap() =
+        when typeof(`call`) is void:
+          `call`
+        else:
+          discard `call`
+
+      executeTap()
+      `tmp`
