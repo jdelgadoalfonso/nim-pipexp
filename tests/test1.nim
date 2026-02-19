@@ -1,7 +1,8 @@
 import
   unittest,
-  std/sugar,
-  pipexp
+  std/[strutils, sugar],
+  pipexp,
+  math
 
 proc plus20(arg0: int): int = arg0 + 20
 proc plus30(arg0: int): int = arg0 + 30
@@ -11,8 +12,6 @@ proc identityproc(x: proc): proc = x
 proc minus(a, b: int): int = a - b
 proc divInt(a, b: int): int = a div b
 proc formatCoords(x, y, z: int): string = $x & ":" & $y & ":" & $z
-
-import math
 proc power10Sum[T](A: openArray[T]): T =
   let len = A.len
   for i in 0 ..< len:
@@ -291,3 +290,28 @@ suite "Unpacking with _[index]":
       divInt(_, 2)       # 80 div 2 = 40
 
     check val == 40
+
+
+suite "Recursive Placeholder":
+  test "Nested calls":
+    let n = "123"
+    # El "_" está dentro de parseInt, que está dentro de float()
+    # Equivale a: float(parseInt("123"))
+    check (n |> float(parseInt(_))) == 123.0
+
+  test "Deeply nested":
+    proc wrap(s: string): string = "[" & s & "]"
+
+    # Equivale a: wrap(wrap(wrap("hola")))
+    check ("hola" |> wrap(wrap(wrap(_)))) == "[[[hola]]]"
+
+  test "Complex expressions with _[index]":
+    let data = @["a", "b", "c"]
+    # Equivale a: (data[1]).toUpperAscii()
+    check (data |> (_[1]).toUpperAscii()) == "B"
+
+  test "Multiple placeholders in different branches":
+    proc joinThree(a, b, c: string): string = a & b & c
+
+    # Equivale a: joinThree("x".toUpper, "x", "x".toUpper)
+    check ("x" |> joinThree(_.toUpperAscii, _, _.toUpperAscii)) == "XxX"
