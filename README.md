@@ -56,6 +56,11 @@ proc plus_as(a1, a2, a3: int): int = a1 + a2 + a3
 10 | plus_as(90,_,_) | echo
 10 | plus_as(_,_,_) | echo
 
+# You can use arrow syntax from std/sugar:
+10 |> ((x: int) => x + 20) |> echo
+10 |> ((x: int) => x * 2) |> echo
+10 |> ((x: int) => x + 5) |> ((y: int) => y * 2) |> echo
+
 # You can pass lambdas if they are enclosed by curly brackets or parentheses:
 10 | {
 proc(x: int): int =
@@ -66,8 +71,25 @@ proc(x: int): int =
 [10,20] | plus20(_[1]) | echo
 [10,20] | plus20(_[0]) | echo
 
+# You can unpack tuples and arrays:
+let coords = (10, 5)
+coords |> minus(_[0], _[1]) |> echo  # 10 - 5 = 5
+coords |> minus(_[1], _[0]) |> echo  # 5 - 10 = -5
+
+let list = @[10, 20, 30]
+list |> minus(_[1], _[0]) |> echo    # 20 - 10 = 10
+list |> _[^1] |> echo                # Last element: 30
+list |> _[0..1] |> echo              # Range: @[10, 20]
+
 # You can call the placeholder
 plus20 | plus20(_(10)) | echo
+
+# You can use nested placeholders:
+let n = "123"
+n |> float(parseInt(_)) |> echo     # 123.0
+
+proc wrap(s: string): string = "[" & s & "]"
+"hello" |> wrap(wrap(wrap(_))) |> echo  # [[[hello]]]
 ```
 
 You can also make use of a pipeline macro called `pipe` to
@@ -86,6 +108,11 @@ let c = pipe 10:
     proc (_: int): int =
       _ + 50
   }
+
+# You can also use arrow syntax in the pipeline:
+let d = pipe 10:
+  (x: int) => x + 5
+  (x: int) => x * 2
 ```
 
 ## Nim also has [`dup`](https://nim-lang.org/docs/sugar.html#dup.m%2CT%2Cvarargs%5Buntyped%5D) and [`with`](https://nim-lang.org/docs/with.html#with.m%2Ctyped%2Cvarargs%5Buntyped%5D)
@@ -128,24 +155,31 @@ with arg:
 echo arg
 ```
 
-## To-do
-- [ ] Support anonymous procs
-	- [X] Nim native lambdas
-	- [ ] `=>` anonymous procs from `std/sugar`
-- [ ] Other features like [Pipe.jl](https://github.com/oxinabox/Pipe.jl)
-	- [X] Indexing placeholder
-	- [ ] Unpacking placeholder
-	- [X] Calling placeholder
-- [ ] Allow configuring the placeholder symbol
-- [X] Allow multiple instances of the placeholder
+## Implemented Features
+
+- [X] Basic `|>` operator
+- [X] Placeholder `_` to insert results
+- [X] Multiple placeholders
+- [X] Native Nim lambdas
+- [X] Placeholder indexing (`_[index]`)
+- [X] Slicing and negative indices
+- [X] Placeholder call (`_(arg)`)
+- [X] Tuple and array unpacking
+- [X] `=>` syntax from `std/sugar`
+- [X] Nested/recursive placeholder
+- [X] Pipeline macro `pipe`
+
+## Pending To-do
+- [ ] Placeholder symbol configuration
+- [ ] More features like Pipe.jl (e.g., piping to the right)
 
 Maybe:
 - Other operators like [magrittr](https://github.com/tidyverse/magrittr)
 
-## Similar
+## Similar Projects
 - [Iterr](https://github.com/hamidb80/iterrr)
 - [Pipe](https://github.com/CosmicToast/pipe)
 - [Pipelines](https://github.com/calebwin/pipelines)
 
-## See also
+## See Also
 - [Pipe proposal in JavaScript](https://github.com/tc39/proposal-pipeline-operator)
