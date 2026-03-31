@@ -338,6 +338,24 @@ suite "Tap Operator |!":
     check val == "NARANJA"
     check logMsg == "Log: naranja"
 
+  test "Tap with placeholders inline proc":
+    var logMsg = ""
+
+    let val = "naranja" |! ((proc (msg: string) = logMsg = msg)("Log: " & _)) |> toUpperAscii()
+
+    check val == "NARANJA"
+    check logMsg == "Log: naranja"
+
+  test "Tap with placeholders inline sugar":
+    var logMsg = ""
+
+    let val = "naranja" |!
+      ((msg: string) => (logMsg = "Log: " & msg)) |>
+      toUpperAscii()
+
+    check val == "NARANJA"
+    check logMsg == "Log: naranja"
+
   test "Tap doesn't execute argument twice":
     var counter = 0
     proc getVal(): int =
@@ -352,13 +370,22 @@ suite "Tap Operator |!":
 
   test "Multi-line pipe with Tap":
     var loggerCalledWith = 0
-    proc logger(x: int) = loggerCalledWith = x
 
     let val = 10 |>
       plus20 |!
-      logger |>
+      (proc (x: int) = loggerCalledWith = x) |>
       plus30
 
     check val == 60
     check loggerCalledWith == 30
 
+  test "Multi-line sudar pipe with Tap":
+    var loggerCalledWith = 0
+
+    let val = 10 |>
+      plus20 |!
+      {(x: int) => (loggerCalledWith = x)} |>
+      plus30
+
+    check val == 60
+    check loggerCalledWith == 30

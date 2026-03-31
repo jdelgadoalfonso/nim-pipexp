@@ -1,3 +1,6 @@
 src/pipexp
 tests/test1
 tmp*
+nimble.develop
+nimble.paths
+nimbledeps
